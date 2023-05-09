@@ -29,7 +29,7 @@ from forms import (
     SocForm,
     PasForm
 )
-from cs50 import SQL
+#from cs50 import SQL
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
@@ -40,7 +40,7 @@ import uuid
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "9e5734eb4a542802b7c24415"
-app.config["UPLOAD_FOLDER"] = "/workspaces/104098487/project/uploads"
+app.config["UPLOAD_FOLDER"] = "/uploads"
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 app.config["UPLOAD_EXTENSIONS"] = [".jpg", ".png", ".gif"]
 app.secret_key = '9e5734eb4a542802b7c24415as'
@@ -51,7 +51,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///users.db")
+#db = SQL("sqlite:///users.db")
 count = 1
 
 @app.after_request
@@ -82,26 +82,26 @@ def login_required(f):
 
 def get_read_only_info(code):
 
-    user_id = db.execute("SELECT user_id FROM token_add WHERE token_id = ?", code)
+    #user_id = db.execute("SELECT user_id FROM token_add WHERE token_id = ?", code)
     if user_id:
-        time = db.execute("SELECT exp_date FROM token_add WHERE token_id = ?", code)
+        #time = db.execute("SELECT exp_date FROM token_add WHERE token_id = ?", code)
         current_date = datetime.now().date()
         target_date = datetime.strptime(time[0]["exp_date"], "%Y-%m-%d").date()
         if current_date > target_date:
-            db.execute("DELETE FROM token_add WHERE token_id= ? ",code)
+            #db.execute("DELETE FROM token_add WHERE token_id= ? ",code)
             return False
         else:
-            reuse= db.execute("SELECT reuse_count FROM token_add WHERE token_id = ?", code)
+            #reuse= db.execute("SELECT reuse_count FROM token_add WHERE token_id = ?", code)
             if reuse[0]["reuse_count"] >0:
                 reuse=reuse[0]["reuse_count"]
                 reuse = reuse -1
-                db.execute(" UPDATE token_add SET reuse_count=? WHERE token_id = ? ",reuse,code)
-                user_id = db.execute("SELECT user_id FROM token_add WHERE token_id = ?", code)
+                #db.execute(" UPDATE token_add SET reuse_count=? WHERE token_id = ? ",reuse,code)
+                #user_id = db.execute("SELECT user_id FROM token_add WHERE token_id = ?", code)
                 session["user_id"]=user_id[0]["user_id"]
                 session["token"]= code
                 return True
             else:
-                db.execute("DELETE FROM token_add WHERE token_id= ? ",code)
+                #db.execute("DELETE FROM token_add WHERE token_id= ? ",code)
                 return False
     else:
         return False
@@ -135,28 +135,28 @@ def home_page():
 @login_required
 def cv_page():
     user_id = session["user_id"]
-    data = db.execute("SELECT * FROM  users WHERE users.id= ?",user_id)
-    data1 = db.execute("SELECT * FROM  work_exp WHERE user_id= ?",user_id)
-    data2 = db.execute("SELECT * FROM  project WHERE user_id= ?",user_id)
-    data3 = db.execute("SELECT * FROM  gols WHERE user_id= ?",user_id)
-    data4 = db.execute("SELECT * FROM  skils WHERE user_id= ?",user_id)
-    data5 = db.execute("SELECT * FROM  education WHERE user_id= ?",user_id)
-    data6 = db.execute("SELECT * FROM  hobby WHERE user_id= ?",user_id)
-    data7 = db.execute("SELECT * FROM  referances WHERE user_id= ?",user_id)
-    data8 = db.execute("SELECT * FROM  social WHERE user_id= ?",user_id)
-    data9 = db.execute("SELECT * FROM  hobby WHERE user_id= ?",user_id)
-    data10 = db.execute("SELECT * FROM  lang WHERE user_id= ?",user_id)
-    data11 = db.execute("SELECT * FROM  soc WHERE user_id= ?",user_id)
+    #data = db.execute("SELECT * FROM  users WHERE users.id= ?",user_id)
+    #data1 = db.execute("SELECT * FROM  work_exp WHERE user_id= ?",user_id)
+    #data2 = db.execute("SELECT * FROM  project WHERE user_id= ?",user_id)
+    #data3 = db.execute("SELECT * FROM  gols WHERE user_id= ?",user_id)
+    #data4 = db.execute("SELECT * FROM  skils WHERE user_id= ?",user_id)
+    #data5 = db.execute("SELECT * FROM  education WHERE user_id= ?",user_id)
+    #data6 = db.execute("SELECT * FROM  hobby WHERE user_id= ?",user_id)
+    #data7 = db.execute("SELECT * FROM  referances WHERE user_id= ?",user_id)
+    #data8 = db.execute("SELECT * FROM  social WHERE user_id= ?",user_id)
+    #data9 = db.execute("SELECT * FROM  hobby WHERE user_id= ?",user_id)
+    #data10 = db.execute("SELECT * FROM  lang WHERE user_id= ?",user_id)
+    #data11 = db.execute("SELECT * FROM  soc WHERE user_id= ?",user_id)
 
-    return render_template("cv.html",data=data,data1=data1,data2=data2,data3=data3,data4=data4,data5=data5,data6=data6,data7=data7,data8=data8,data9=data9,data10=data10,data11=data11)
+    return render_template("cv.html")#,data=data,data1=data1,data2=data2,data3=data3,data4=data4,data5=data5,data6=data6,data7=data7,data8=data8,data9=data9,data10=data10,data11=data11)
 
 @app.route("/register", methods=["GET", "POST"])
 def register_page():
     form = RegisterForm()
     if request.method == "POST":
         if form.validate_on_submit():
-            user_to_check = db.execute(
-                "SELECT * FROM users WHERE username = ?", form.username.data
+            #user_to_check = db.execute(
+                #"SELECT * FROM users WHERE username = ?", form.username.data
             )
             if len(user_to_check) == 1:
                 category = "danger"
@@ -167,16 +167,16 @@ def register_page():
                 hash = generate_password_hash(
                     form.password.data, method="pbkdf2:sha256", salt_length=8
                 )
-                db.execute(
-                    "INSERT INTO users (username,hash,email) VALUES (?,?,?)",
+                #db.execute(
+                    #"INSERT INTO users (username,hash,email) VALUES (?,?,?)",
                     form.username.data,
                     hash,
                     form.email.data,
                 )
 
                 # Query database for id
-                rows = db.execute(
-                    "SELECT * FROM users WHERE username = ?", form.username.data
+                #rows = db.execute(
+                    #"SELECT * FROM users WHERE username = ?", form.username.data
                 )
                 # Remember which user has logged in
                 session["user_id"] = rows[0]["id"]
@@ -197,8 +197,8 @@ def login_page():
     if request.method == "POST":
         if form.validate_on_submit():
             # Query database for id
-            rows = db.execute(
-                "SELECT * FROM users WHERE username = ?", form.username.data
+            #rows = db.execute(
+                #"SELECT * FROM users WHERE username = ?", form.username.data
             )
             # Ensure username exists and password is correct
             if len(rows) != 1 or not check_password_hash(
@@ -248,18 +248,18 @@ def project_page():
                 file_name = get_random_string(16)
                 uploaded_file.save(os.path.join(app.config["UPLOAD_FOLDER"], file_name))
 
-            db.execute(
-                "INSERT INTO project VALUES (?,?,?,?,?,?,?,?,?,?)",
-                user_id,
-                form.project.data,
-                form.project_loc.data,
-                form.type.data,
-                form.gool.data,
-                file_name,
-                form.about_project.data,
-                form.start_date.data,
-                form.end_date.data,
-                form.link_project.data,
+            #db.execute(
+               # "INSERT INTO project VALUES (?,?,?,?,?,?,?,?,?,?)",
+               # user_id,
+               # form.project.data,
+               # form.project_loc.data,
+               # form.type.data,
+               # form.gool.data,
+               # file_name,
+               # form.about_project.data,
+               # form.start_date.data,
+               # form.end_date.data,
+               # form.link_project.data,
             )
             return redirect(url_for("project_page"))
         else:
@@ -267,9 +267,9 @@ def project_page():
     else:
         # alow akses to data without login get user id bay pasword ?
 
-        projects = db.execute("SELECT * FROM project WHERE user_id= ? ", user_id)
+       # projects = db.execute("SELECT * FROM project WHERE user_id= ? ", user_id)
 
-        return render_template("project.html",projects=projects)
+        return render_template("project.html")#,projects=projects)
 
 
 def get_random_string(length):
@@ -310,18 +310,18 @@ def work_page():
                 file_name = get_random_string(14)
                 uploaded_file.save(os.path.join(app.config["UPLOAD_FOLDER"], file_name))
 
-            db.execute(
-                "INSERT INTO work_exp  VALUES (?,?,?,?,?,?,?,?,?)",
-                user_id,
-                form.company.data,
-                form.comp_loc.data,
-                form.position.data,
-                form.about_work.data,
-                file_name,
-                form.start_date.data,
-                form.end_date.data,
-                form.link_comp.data,
-            )
+           # db.execute(
+            #    "INSERT INTO work_exp  VALUES (?,?,?,?,?,?,?,?,?)",
+              #  user_id,
+              #  form.company.data,
+              #  form.comp_loc.data,
+              #  form.position.data,
+              #  form.about_work.data,
+              #  file_name,
+              #  form.start_date.data,
+               # form.end_date.data,
+               # form.link_comp.data,
+            #)
             return redirect(url_for("work_page"))
         else:
             return render_template("work.html")
@@ -329,8 +329,8 @@ def work_page():
         # alow akses to data without login get user id bay pasword ?
         # render data from db
 
-        work_exp = db.execute("SELECT * FROM work_exp WHERE user_id= ? ", user_id)
-        return render_template("work.html", work_exp=work_exp)
+        #work_exp = db.execute("SELECT * FROM work_exp WHERE user_id= ? ", user_id)
+        return render_template("work.html")#, work_exp=work_exp)
 
 
 @app.route("/edu", methods=["GET", "POST"])
@@ -353,27 +353,27 @@ def edu_page():
                 file_name = get_random_string(14)
                 uploaded_file.save(os.path.join(app.config["UPLOAD_FOLDER"], file_name))
 
-            db.execute(
-                "INSERT INTO education  VALUES (?,?,?,?,?,?,?,?,?,?)",
-                user_id,
-                form.school.data,
-                form.school_loc.data,
-                form.type.data,
-                form.grade.data,
-                file_name,
-                form.about_edu.data,
-                form.start_date.data,
-                form.end_date.data,
-                form.link_edu.data,
-            )
+          #  db.execute(
+           #     "INSERT INTO education  VALUES (?,?,?,?,?,?,?,?,?,?)",
+            #    user_id,
+            #    form.school.data,
+            #    form.school_loc.data,
+             #   form.type.data,
+            #    form.grade.data,
+            #    file_name,
+            #    form.about_edu.data,
+            #    form.start_date.data,
+            #    form.end_date.data,
+            #    form.link_edu.data,
+           # )
             return redirect(url_for("edu_page"))
         else:
             return render_template("education.html")
     else:
         # alow akses to data without login get user id bay pasword ?
         # render data from db
-        education = db.execute("SELECT * FROM education WHERE user_id= ? ", user_id)
-        return render_template("education.html", education=education)
+       # education = db.execute("SELECT * FROM education WHERE user_id= ? ", user_id)
+        return render_template("education.html")#, education=education)
 
 
 @app.route("/skils", methods=["GET", "POST"])
@@ -396,22 +396,22 @@ def skils_page():
                 file_name = get_random_string(14)
                 uploaded_file.save(os.path.join(app.config["UPLOAD_FOLDER"], file_name))
 
-            db.execute(
-                "INSERT INTO skils  VALUES (?,?,?,?,?)",
-                user_id,
-                form.skill.data,
-                form.level.data,
-                file_name,
-                form.about_skill.data,
-            )
+           # db.execute(
+              #  "INSERT INTO skils  VALUES (?,?,?,?,?)",
+              #  user_id,
+              #  form.skill.data,
+              #  form.level.data,
+              #  file_name,
+              #  form.about_skill.data,
+            #)
             return redirect(url_for("skils_page"))
         else:
             return render_template("skils.html")
     else:
         # alow akses to data without login get user id bay pasword ?
         # render data from db
-        skils = db.execute("SELECT * FROM skils WHERE user_id= ? ", user_id)
-        return render_template("skils.html", skils=skils)
+        #skils = db.execute("SELECT * FROM skils WHERE user_id= ? ", user_id)
+        return render_template("skils.html")#, skils=skils)
 
 
 @app.route("/gols", methods=["GET", "POST"])
@@ -432,13 +432,13 @@ def gols_page():
                 file_name = get_random_string(14)
                 uploaded_file.save(os.path.join(app.config["UPLOAD_FOLDER"], file_name))
 
-            db.execute(
-                "INSERT INTO gols  VALUES (?,?,?,?,?)",
-                user_id,
-                form.gol_pos.data,
-                file_name,
-                form.about_gol.data,
-                form.link.data,
+            #db.execute(
+             #   "INSERT INTO gols  VALUES (?,?,?,?,?)",
+               # user_id,
+               # form.gol_pos.data,
+               # file_name,
+               # form.about_gol.data,
+               # form.link.data,
             )
             return redirect(url_for("gols_page"))
         else:
@@ -446,8 +446,8 @@ def gols_page():
     else:
         # alow akses to data without login get user id bay pasword ?
         # render data from db
-        gols = db.execute("SELECT * FROM gols WHERE user_id= ? ", user_id)
-        return render_template("gols.html",  gols=gols)
+        #gols = db.execute("SELECT * FROM gols WHERE user_id= ? ", user_id)
+        return render_template("gols.html")#,  gols=gols)
 
 
 @app.route("/hob", methods=["GET", "POST"])
@@ -470,22 +470,22 @@ def hob_page():
                 file_name = get_random_string(14)
                 uploaded_file.save(os.path.join(app.config["UPLOAD_FOLDER"], file_name))
 
-            db.execute(
-                "INSERT INTO hobby  VALUES (?,?,?,?,?)",
-                user_id,
-                form.hobby.data,
-                file_name,
-                form.about_hobby.data,
-                form.duration.data,
-            )
+            #db.execute(
+               # "INSERT INTO hobby  VALUES (?,?,?,?,?)",
+               # user_id,
+                #form.hobby.data,
+                #file_name,
+                #form.about_hobby.data,
+               # form.duration.data,
+            #)
             return redirect(url_for("hob_page"))
         else:
             return render_template("hobij.html")
     else:
         # alow akses to data without login get user id bay pasword ?
         # render data from db
-        hobby = db.execute("SELECT * FROM hobby WHERE user_id= ? ", user_id)
-        return render_template("hobij.html", hobby=hobby)
+        #hobby = db.execute("SELECT * FROM hobby WHERE user_id= ? ", user_id)
+        return render_template("hobij.html")#, hobby=hobby)
 
 
 @app.route("/ref", methods=["GET", "POST"])
@@ -508,27 +508,27 @@ def ref_page():
                 file_name = get_random_string(14)
                 uploaded_file.save(os.path.join(app.config["UPLOAD_FOLDER"], file_name))
 
-            db.execute(
-                "INSERT INTO referances  VALUES (?,?,?,?,?,?,?,?,?,?)",
-                user_id,
-                form.ref_name.data,
-                form.company.data,
-                file_name,
-                form.referance.data,
-                form.mob.data,
-                form.email.data,
-                form.link.data,
-                0,
-                0,
-            )
+            #db.execute(
+             #   "INSERT INTO referances  VALUES (?,?,?,?,?,?,?,?,?,?)",
+              #  user_id,
+              # form.ref_name.data,
+              #  form.company.data,
+              #  file_name,
+              #  form.referance.data,
+              #  form.mob.data,
+              #  form.email.data,
+              #  form.link.data,
+              #  0,
+              #  0,
+            #)
             return redirect(url_for("ref_page"))
         else:
             return render_template("refernces.html")
     else:
         # alow akses to data without login get user id bay pasword ?
         # render data from db
-        referances = db.execute("SELECT * FROM referances WHERE user_id= ? ", user_id)
-        return render_template("refernces.html", referances=referances)
+        #referances = db.execute("SELECT * FROM referances WHERE user_id= ? ", user_id)
+        return render_template("refernces.html")#, referances=referances)
 
 
 @app.route("/social", methods=["GET", "POST"])
@@ -551,22 +551,22 @@ def social_page():
                 file_name = get_random_string(14)
                 uploaded_file.save(os.path.join(app.config["UPLOAD_FOLDER"], file_name))
 
-            db.execute(
-                "INSERT INTO social  VALUES (?,?,?,?,?)",
-                user_id,
-                form.social.data,
-                file_name,
-                form.activity.data,
-                form.link.data,
-            )
+            #db.execute(
+             #   "INSERT INTO social  VALUES (?,?,?,?,?)",
+             #   user_id,
+             #   form.social.data,
+             #   file_name,
+             #   form.activity.data,
+             #   form.link.data,
+            #)
             return redirect(url_for("social_page"))
         else:
             return render_template("social.html")
     else:
         # alow akses to data without login get user id bay pasword ?
         # render data from db
-        social = db.execute("SELECT * FROM social WHERE user_id= ? ", user_id)
-        return render_template("social.html", social=social)
+        #social = db.execute("SELECT * FROM social WHERE user_id= ? ", user_id)
+        return render_template("social.html")#, social=social)
 
 
 @app.route("/profile", methods=["GET", "POST"])
@@ -602,10 +602,10 @@ def profile_page():
                 path = os.path.join(app.config["UPLOAD_FOLDER"], file[0]["img"])
                 os.remove(path)
                 uploaded_file.save(os.path.join(app.config["UPLOAD_FOLDER"], file_name))
-            rows = db.execute("SELECT * FROM users WHERE id = ?", user_id)
+            #rows = db.execute("SELECT * FROM users WHERE id = ?", user_id)
             # Ensure username exists and password is correct
             if check_password_hash(rows[0]["hash"], form.password.data):
-                db.execute(" UPDATE users SET username=?, first_name=?, last_name=?,birthday=?,gol_cv=?, family_status=?,nation=?,img=?,about_me=?,adress=?,email=?,full_mob=? WHERE id = ? ",form.username.data,form.first_name.data,form.last_name.data,form.birthday.data,form.gol_cv.data,form.family_status.data,form.nation.data,file_name,form.about_me.data,form.adress.data,form.email.data,form.full_mob.data,user_id)
+               # db.execute(" UPDATE users SET username=?, first_name=?, last_name=?,birthday=?,gol_cv=?, family_status=?,nation=?,img=?,about_me=?,adress=?,email=?,full_mob=? WHERE id = ? ",form.username.data,form.first_name.data,form.last_name.data,form.birthday.data,form.gol_cv.data,form.family_status.data,form.nation.data,file_name,form.about_me.data,form.adress.data,form.email.data,form.full_mob.data,user_id)
                 return redirect(url_for("cv_page"))
             else:
                 category = "danger"
@@ -615,11 +615,11 @@ def profile_page():
     else:
         # alow akses to data without login get user id bay pasword ?
         # render data from db
-        lang = db.execute("SELECT * FROM lang WHERE user_id= ? ", user_id)
-        soc = db.execute("SELECT * FROM soc WHERE user_id= ? ", user_id)
+        #lang = db.execute("SELECT * FROM lang WHERE user_id= ? ", user_id)
+        #soc = db.execute("SELECT * FROM soc WHERE user_id= ? ", user_id)
         return render_template(
-            "profile.html",lang=lang,soc=soc,
-            form=form,
+            "profile.html")#,lang=lang,soc=soc,
+           """ form=form,
             form1=form1,
             form2=form2,
             form3=form3,
@@ -632,7 +632,7 @@ def profile_page():
             form10=form10,
             form11=form11,
         )
-
+"""
 
 @app.route("/token", methods=["GET", "POST"])
 
@@ -642,13 +642,13 @@ def tok_page():
     if request.method == "POST":
         if form.validate_on_submit():
             tokengen = os.urandom(8).hex()
-            db.execute(
-                "INSERT INTO token_add VALUES (?,?,?,?)",
-                user_id,
-                tokengen,
-                form.exp_date.data,
-                form.reuse_count.data,
-            )
+            #db.execute(
+              #  "INSERT INTO token_add VALUES (?,?,?,?)",
+              #  user_id,
+              #  tokengen,
+              #  form.exp_date.data,
+              #  form.reuse_count.data,
+            #)
             return redirect(url_for("tok_page"))
         else:
             return render_template("token.html",form=form)
@@ -656,8 +656,8 @@ def tok_page():
         # alow akses to data without login get user id bay pasword ?
         # render data from db
 
-        tokens = db.execute("SELECT * FROM token_add WHERE user_id= ? ", user_id)
-        return render_template("token.html",form=form, tokens=tokens)
+        #tokens = db.execute("SELECT * FROM token_add WHERE user_id= ? ", user_id)
+        return render_template("token.html")#,form=form, tokens=tokens)
 
 @app.route("/lang", methods=["GET", "POST"])
 @login_required
@@ -667,13 +667,13 @@ def lang_page():
     user_id = session["user_id"]
     if request.method == "POST":
         if form.validate_on_submit():
-            db.execute(
-                "INSERT INTO lang VALUES (?,?,?,?)",
-                user_id,
-                form.lang.data,
-                form.level.data,
-                form.level_by.data,
-            )
+            #db.execute(
+             #   "INSERT INTO lang VALUES (?,?,?,?)",
+             #   user_id,
+             #   form.lang.data,
+             #   form.level.data,
+             #  form.level_by.data,
+            #)
             return redirect(url_for("home_page"))
         else:
             return render_template("profile.html",form=form)
@@ -689,15 +689,15 @@ def soc_page():
     if request.method == "POST":
         if form.validate_on_submit():
 
-            db.execute(
-                "INSERT INTO soc VALUES (?,?,?,?,?,?)",
-                user_id,
-                form.web.data,
-                form.f_book.data,
-                form.twiter.data,
-                form.instag.data,
-                form.add_info.data
-            )
+            #db.execute(
+             #   "INSERT INTO soc VALUES (?,?,?,?,?,?)",
+             #   user_id,
+             #   form.web.data,
+             #   form.f_book.data,
+             #   form.twiter.data,
+             #   form.instag.data,
+             #   form.add_info.data
+            #)
             return redirect(url_for("home_page"))
         else:
             return render_template("profile.html",form=form)
@@ -706,7 +706,7 @@ def soc_page():
 
 @app.route("/del",methods=["POST"])
 @login_required
-
+"""
 def delete():
     user_id = session["user_id"]
     request.form.get("code")
@@ -775,7 +775,7 @@ def delete():
         if item9:
             db.execute("DELETE FROM soc WHERE user_id= ? AND web= ? ",user_id,item9)
             return redirect(url_for("cv_page"))
-
+"""
 
         return redirect(url_for("cv_page"))
 
@@ -787,13 +787,13 @@ def pas_page():
     user_id = session["user_id"]
     if request.method == "POST":
         if form.validate_on_submit():
-            rows = db.execute("SELECT * FROM users WHERE id = ?", user_id)
+            #rows = db.execute("SELECT * FROM users WHERE id = ?", user_id)
             # Ensure username exists and password is correct
             if check_password_hash(rows[0]["hash"], form.password1.data):
                 hash_new=generate_password_hash(
                     form.password.data, method="pbkdf2:sha256", salt_length=8
                 )
-                db.execute(" UPDATE users SET hash=? WHERE id = ? ",hash_new,user_id)
+             #   db.execute(" UPDATE users SET hash=? WHERE id = ? ",hash_new,user_id)
                 return redirect(url_for("logout"))
             else:
                 category = "danger"
@@ -824,7 +824,7 @@ def code_error():
         return render_template("code.html")
     else:
         return redirect(url_for("home_page"))
-
+"""
 # Route to handle password reset requests
 @app.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
@@ -891,4 +891,7 @@ def reset_password_confirm(reset_key):
         flash('Your password has been reset successfully', 'success')
         return redirect(url_for('login'))
 
-    return render_template('reset_password.html',form=form)
+    return render_template('reset_password.html',form=form) """
+
+if __name__=="__main__":
+  app.run(host='0.0.0.0',debug=True)
